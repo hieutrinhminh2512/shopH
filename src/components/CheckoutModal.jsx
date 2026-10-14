@@ -32,8 +32,6 @@ export default function CheckoutModal() {
     showToast
   } = useShop();
 
-  if (activeModal !== 'checkout') return null;
-
   const [paymentMethod, setPaymentMethod] = useState('cod'); // 'cod' | 'vietqr' | 'momo' | 'card'
   const [shippingUnit, setShippingUnit] = useState('spx'); // 'spx' | 'ghn' | 'express'
   const [orderNote, setOrderNote] = useState('');
@@ -41,6 +39,12 @@ export default function CheckoutModal() {
   const [customAddress, setCustomAddress] = useState(user?.addresses?.[0]?.address || 'Số 12 ngõ 45 Cầu Giấy, Hà Nội');
   const [recipientName, setRecipientName] = useState(user?.name || 'Trịnh Minh Hiếu');
   const [recipientPhone, setRecipientPhone] = useState(user?.phone || '0987 654 321');
+
+  if (activeModal !== 'checkout') return null;
+
+  const extraExpressFee = shippingUnit === 'express' ? 35000 : 0;
+  const actualShippingFee = finalShippingFee + extraExpressFee;
+  const actualFinalTotal = Math.max(0, cartSubtotal - voucherDiscount - coinsDiscount + actualShippingFee);
 
   const handlePlaceOrder = () => {
     if (!recipientName.trim() || !recipientPhone.trim() || !customAddress.trim()) {
@@ -72,7 +76,9 @@ export default function CheckoutModal() {
       shippingAddress: `${customAddress} (Người nhận: ${recipientName} - ${recipientPhone})`,
       paymentMethod: paymentMethodName,
       shippingUnit: shippingUnitName,
-      note: orderNote
+      note: orderNote,
+      customShippingFee: actualShippingFee,
+      customTotalAmount: actualFinalTotal
     });
   };
 
@@ -323,12 +329,12 @@ export default function CheckoutModal() {
             <div className="flex justify-between">
               <span>Phí vận chuyển:</span>
               <span className="font-medium text-gray-800">
-                {finalShippingFee === 0 ? <strong className="text-emerald-600">Miễn phí</strong> : formatCurrency(finalShippingFee)}
+                {actualShippingFee === 0 ? <strong className="text-emerald-600">Miễn phí</strong> : formatCurrency(actualShippingFee)}
               </span>
             </div>
             <div className="pt-2 border-t border-gray-200 flex justify-between items-center text-sm font-bold text-gray-900">
               <span>Tổng số tiền cần thanh toán:</span>
-              <span className="text-xl text-[#ee4d2d] font-black">{formatCurrency(finalTotal)}</span>
+              <span className="text-xl text-[#ee4d2d] font-black">{formatCurrency(actualFinalTotal)}</span>
             </div>
           </div>
         </div>

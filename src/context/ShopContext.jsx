@@ -105,10 +105,18 @@ export const ShopProvider = ({ children }) => {
     showToast(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`, 'success');
   };
 
+  const closeModal = () => {
+    setActiveModal(null);
+  };
+
   const updateCartQuantity = (cartItemId, delta) => {
     setCart(prev => prev.map(item => {
       if (item.cartItemId === cartItemId) {
-        const newQty = Math.max(1, item.quantity + delta);
+        const maxStock = item.stock || 99;
+        const newQty = Math.max(1, Math.min(maxStock, item.quantity + delta));
+        if (delta > 0 && item.quantity >= maxStock) {
+          showToast(`Sản phẩm chỉ còn ${maxStock} trong kho!`, 'warning');
+        }
         return { ...item, quantity: newQty };
       }
       return item;
@@ -156,7 +164,7 @@ export const ShopProvider = ({ children }) => {
   const finalTotal = Math.max(0, cartSubtotal - voucherDiscount - coinsDiscount + finalShippingFee);
 
   // Create Order
-  const createOrder = ({ shippingAddress, paymentMethod, shippingUnit, note }) => {
+  const createOrder = ({ shippingAddress, paymentMethod, shippingUnit, note, customShippingFee, customTotalAmount }) => {
     if (selectedCartItems.length === 0) {
       showToast('Vui lòng chọn ít nhất 1 sản phẩm để đặt hàng!', 'warning');
       return null;
@@ -176,9 +184,9 @@ export const ShopProvider = ({ children }) => {
         variant: item.variant,
         quantity: item.quantity
       })),
-      totalAmount: finalTotal,
+      totalAmount: customTotalAmount !== undefined ? customTotalAmount : finalTotal,
       subtotal: cartSubtotal,
-      shippingFee: finalShippingFee,
+      shippingFee: customShippingFee !== undefined ? customShippingFee : finalShippingFee,
       discountAmount: voucherDiscount + coinsDiscount,
       paymentMethod,
       shippingUnit: shippingUnit || 'SPX Express Giao Siêu Tốc',
@@ -246,6 +254,9 @@ export const ShopProvider = ({ children }) => {
       reviewsCount: 0,
       sold: 0,
       reviews: [],
+      variants: newProduct.variants?.length ? newProduct.variants : [
+        { name: 'Phân loại', options: ['Bản Tiêu Chuẩn', 'Bản Cao Cấp'] }
+      ],
       images: newProduct.images?.length ? newProduct.images : [newProduct.image]
     };
     setProducts(prev => [product, ...prev]);
@@ -372,6 +383,7 @@ export const ShopProvider = ({ children }) => {
       // Modals
       activeModal,
       setActiveModal,
+      closeModal,
       selectedProduct,
       setSelectedProduct,
 

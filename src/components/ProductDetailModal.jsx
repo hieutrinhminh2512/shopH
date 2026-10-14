@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useShop } from '../context/ShopContext';
 import { 
   X, 
@@ -28,18 +28,8 @@ export default function ProductDetailModal() {
     showToast
   } = useShop();
 
-  if (activeModal !== 'product-detail' || !selectedProduct) return null;
-
-  const [activeImage, setActiveImage] = useState(selectedProduct.images?.[0] || selectedProduct.image);
-  const [selectedVariants, setSelectedVariants] = useState(() => {
-    const initial = {};
-    if (selectedProduct.variants) {
-      selectedProduct.variants.forEach(v => {
-        initial[v.name] = v.options[0];
-      });
-    }
-    return initial;
-  });
+  const [activeImage, setActiveImage] = useState('');
+  const [selectedVariants, setSelectedVariants] = useState({});
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('desc'); // 'desc' | 'specs' | 'reviews'
   const [isFavorite, setIsFavorite] = useState(false);
@@ -48,6 +38,25 @@ export default function ProductDetailModal() {
   const [newReviewComment, setNewReviewComment] = useState('');
   const [newReviewRating, setNewReviewRating] = useState(5);
   const [showReviewForm, setShowReviewForm] = useState(false);
+
+  // Sync state whenever selectedProduct changes
+  useEffect(() => {
+    if (selectedProduct) {
+      setActiveImage(selectedProduct.images?.[0] || selectedProduct.image || '');
+      const initialVariants = {};
+      if (selectedProduct.variants) {
+        selectedProduct.variants.forEach(v => {
+          initialVariants[v.name] = v.options[0];
+        });
+      }
+      setSelectedVariants(initialVariants);
+      setQuantity(1);
+      setActiveTab('desc');
+      setShowReviewForm(false);
+    }
+  }, [selectedProduct]);
+
+  if (activeModal !== 'product-detail' || !selectedProduct) return null;
 
   const discount = calculateDiscount(selectedProduct.originalPrice, selectedProduct.price);
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Bot, Sparkles } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 
@@ -14,6 +14,13 @@ export default function ChatWidget() {
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const { setActiveModal, vouchers } = useShop();
+  const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, isOpen]);
 
   const handleSend = (textToSend) => {
     const text = textToSend || inputMessage;
@@ -129,6 +136,7 @@ export default function ChatWidget() {
                 </div>
               </div>
             ))}
+            <div ref={messagesEndRef} />
           </div>
 
           {/* Quick Prompts */}

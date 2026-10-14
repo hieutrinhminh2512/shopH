@@ -77,6 +77,10 @@ export default function ProductList() {
         return (b.sold || 0) - (a.sold || 0);
       } else if (sortBy === 'latest' || activeTab === 'newest') {
         return b.id.localeCompare(a.id);
+      } else if (activeTab === 'deals') {
+        const discA = a.originalPrice ? (a.originalPrice - a.price) / a.originalPrice : 0;
+        const discB = b.originalPrice ? (b.originalPrice - b.price) / b.originalPrice : 0;
+        return discB - discA;
       } else {
         // 'popular'
         return (b.rating || 0) * (b.reviewsCount || 0) - (a.rating || 0) * (a.reviewsCount || 0);
@@ -227,10 +231,14 @@ export default function ProductList() {
                 onClick={() => {
                   setSelectedCategory('all');
                   setSearchQuery('');
+                  setOnlyMall(false);
+                  setOnlyFreeship(false);
+                  setPriceRange({ min: '', max: '' });
+                  setRatingFilter(0);
                 }}
                 className="bg-[#ee4d2d] text-white text-xs font-semibold px-4 py-2 rounded shadow hover:bg-[#d73211] transition-colors"
               >
-                Xem tất cả sản phẩm
+                Xóa bộ lọc & Xem tất cả sản phẩm
               </button>
             </div>
           ) : (

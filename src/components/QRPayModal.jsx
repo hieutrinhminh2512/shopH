@@ -10,15 +10,16 @@ export default function QRPayModal() {
 
   useEffect(() => {
     if (activeModal !== 'qr-pay') return;
+    setTimeLeft(900); // Reset to 15 minutes whenever modal opens
     const interval = setInterval(() => {
       setTimeLeft(prev => (prev > 0 ? prev - 1 : 0));
     }, 1000);
     return () => clearInterval(interval);
-  }, [activeModal]);
+  }, [activeModal, pendingOrder]);
 
   if (activeModal !== 'qr-pay' || !pendingOrder) return null;
 
-  const minutes = Math.floor(timeLeft / 1000 * 60) || Math.floor(timeLeft / 60);
+  const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
   const formattedMinutes = String(minutes).padStart(2, '0');
   const formattedSeconds = String(seconds).padStart(2, '0');

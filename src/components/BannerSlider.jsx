@@ -62,10 +62,24 @@ export default function BannerSlider() {
         {/* Banner Grid (2/3 Main slider + 1/3 Side banners) */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 rounded-lg overflow-hidden">
           {/* Main Hero Slider */}
-          <div className="lg:col-span-2 relative h-56 sm:h-72 md:h-80 rounded-lg overflow-hidden group shadow-sm">
+          <div className="lg:col-span-2 relative h-56 sm:h-72 md:h-80 rounded-lg overflow-hidden group shadow-sm cursor-pointer">
             {BANNERS.map((banner, index) => (
               <div
                 key={banner.id}
+                onClick={() => {
+                  const elem = document.getElementById('products-section');
+                  if (banner.id === 1) {
+                    const flash = document.getElementById('flash-sale-section');
+                    if (flash) flash.scrollIntoView({ behavior: 'smooth' });
+                  } else if (banner.id === 2) {
+                    setSelectedCategory('dien-thoai');
+                    setOnlyMall(true);
+                    if (elem) elem.scrollIntoView({ behavior: 'smooth' });
+                  } else if (banner.id === 3) {
+                    setSelectedCategory('thoi-trang-nam');
+                    if (elem) elem.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
                 className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
                   index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
                 }`}
@@ -91,14 +105,14 @@ export default function BannerSlider() {
 
             {/* Slider Controls */}
             <button
-              onClick={prevSlide}
+              onClick={(e) => { e.stopPropagation(); prevSlide(); }}
               className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-10 bg-black/30 hover:bg-black/60 text-white rounded-r flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
               aria-label="Previous slide"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button
-              onClick={nextSlide}
+              onClick={(e) => { e.stopPropagation(); nextSlide(); }}
               className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-10 bg-black/30 hover:bg-black/60 text-white rounded-l flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
               aria-label="Next slide"
             >
@@ -110,7 +124,7 @@ export default function BannerSlider() {
               {BANNERS.map((_, index) => (
                 <button
                   key={index}
-                  onClick={() => setCurrentSlide(index)}
+                  onClick={(e) => { e.stopPropagation(); setCurrentSlide(index); }}
                   className={`h-2 rounded-full transition-all duration-300 ${
                     index === currentSlide ? 'w-6 bg-[#ee4d2d]' : 'w-2 bg-white/70 hover:bg-white'
                   }`}
@@ -125,6 +139,15 @@ export default function BannerSlider() {
             {SUB_BANNERS.map((sub) => (
               <div
                 key={sub.id}
+                onClick={() => {
+                  const elem = document.getElementById('products-section');
+                  if (sub.id === 1) {
+                    setOnlyMall(true);
+                  } else {
+                    setOnlyFreeship(true);
+                  }
+                  if (elem) elem.scrollIntoView({ behavior: 'smooth' });
+                }}
                 className="relative flex-1 rounded-lg overflow-hidden group cursor-pointer shadow-sm"
               >
                 <img
